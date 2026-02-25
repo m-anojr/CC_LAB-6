@@ -21,9 +21,12 @@ pipeline {
             steps {
                 sh '''
                 docker rm -f nginx-lb || true
-                docker run -d --name nginx-lb --network app-network -p 80:80 \
-                -v $(pwd)/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro nginx
+                # Run NGINX without the mount first
+                docker run -d --name nginx-lb --network app-network -p 80:80 nginx
                 sleep 2
+                # Copy the config file from the workspace into the container
+                docker cp nginx/default.conf nginx-lb:/etc/nginx/conf.d/default.conf
+                # Reload NGINX to apply changes
                 docker exec nginx-lb nginx -s reload
                 '''
             }
