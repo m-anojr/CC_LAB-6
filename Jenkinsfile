@@ -24,8 +24,11 @@ pipeline {
             steps {
                 sh '''
                 docker rm -f nginx-lb || true
+                
+                # Corrected mount path using $(pwd) for Arch Linux environment
                 docker run -d --name nginx-lb --network app-network -p 80:80 \
                 -v $(pwd)/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro nginx
+                
                 sleep 2
                 docker exec nginx-lb nginx -s reload
                 '''
@@ -35,10 +38,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline executed successfully, NGINX load balancer is running.'
+            echo 'Pipeline executed successfully. NGINX load balancer is running.' [cite: 461, 488]
         }
         failure {
-            echo 'Pipeline failed. Check console logs for errors.'
+            echo 'Pipeline failed. Check console logs for errors.' [cite: 738]
         }
     }
 }
