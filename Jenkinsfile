@@ -16,6 +16,8 @@ pipeline {
                 docker rm -f backend1 backend2 || true
                 docker run -d --name backend1 --network app-network backend-app
                 docker run -d --name backend2 --network app-network backend-app
+                # Required delay for Docker DNS and backend initialization
+                sleep 5
                 '''
             }
         }
@@ -24,12 +26,17 @@ pipeline {
                 sh '''
                 docker rm -f nginx-lb || true
                 
+                # Start NGINX container
                 docker run -d \
                   --name nginx-lb \
                   --network app-network \
                   -p 80:80 \
                   nginx
                 
+                # Required delay for NGINX to stabilize before config update
+                sleep 3
+                
+                # Copy config and reload
                 docker cp nginx/default.conf nginx-lb:/etc/nginx/conf.d/default.conf
                 docker exec nginx-lb nginx -s reload
                 '''
@@ -41,7 +48,7 @@ pipeline {
             echo 'Pipeline executed successfully. NGINX load balancer is running.'
         }
         failure {
-            echo 'Pipeline failed. Check console logs for errors.'
+            echo 'Pipeline failed. Check console logs for errors.' 
         }
     }
 }
