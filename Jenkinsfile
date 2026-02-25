@@ -4,6 +4,7 @@ pipeline {
         stage('Build Backend Image') {
             steps {
                 sh '''
+                docker rmi -f backend-app || true
                 docker build -t backend-app backend
                 '''
             }
@@ -32,7 +33,11 @@ pipeline {
         }
     }
     post {
-        success { echo 'Pipeline executed successfully. NGINX load balancer is running.' } [cite: 461]
-        failure { echo 'Pipeline failed. Check console logs for errors.' } [cite: 738]
+        success {
+            echo 'Pipeline executed successfully. NGINX load balancer is running.'
+        }
+        failure {
+            echo 'Pipeline failed. Check console logs for errors.'
+        }
     }
 }
